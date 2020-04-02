@@ -1,6 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:fancy_bottom_navigation/fancy_bottom_navigation.dart';
+import 'second_page.dart';
+import 'dart:io';
+import 'package:flutter/services.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  runApp(MyApp());
+  if (Platform.isAndroid) {
+    // 以下两行 设置android状态栏为透明的沉浸。写在组件渲染之后，是为了在渲染后进行set赋值，覆盖状态栏，写在渲染之前MaterialApp组件会覆盖掉这个值。
+    SystemUiOverlayStyle systemUiOverlayStyle =
+        SystemUiOverlayStyle(statusBarColor: Colors.transparent);
+    SystemChrome.setSystemUIOverlayStyle(systemUiOverlayStyle);
+  }
+}
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -18,7 +30,7 @@ class MyApp extends StatelessWidget {
         // or simply save your changes to "hot reload" in a Flutter IDE).
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
-        primarySwatch: Colors.red,
+        primarySwatch: Colors.deepOrange,
       ),
       home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
@@ -46,6 +58,12 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
+  int currentPage = 0;
+
+  Color swatchTheme = Colors.lightGreen;
+
+  GlobalKey bottomNavigationKey = GlobalKey();
+
   void _incrementCounter() {
     setState(() {
       // This call to setState tells the Flutter framework that something has
@@ -56,6 +74,129 @@ class _MyHomePageState extends State<MyHomePage> {
       _counter++;
     });
   }
+
+  void showAlertDialog(BuildContext context, content) {
+    showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Text(content),
+            title: Center(
+                child: Text(
+              '标题',
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold),
+            )),
+            actions: <Widget>[
+              FlatButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('确定')),
+              FlatButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('取消')),
+            ],
+          );
+        });
+  }
+
+  _getPage(int page) {
+    switch (page) {
+      case 0:
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Text("This is the home page"),
+            RaisedButton(
+              child: Text(
+                "Start new page",
+                style: TextStyle(color: Colors.white),
+              ),
+              color: Theme.of(context).primaryColor,
+              onPressed: () {
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => SecondPage()));
+              },
+            ),
+            RaisedButton(
+              child: Text(
+                "Change to page 3",
+                style: TextStyle(color: Colors.white),
+              ),
+              color: Theme.of(context).accentColor,
+              onPressed: () {
+                final FancyBottomNavigationState fState =
+                    bottomNavigationKey.currentState;
+                fState.setPage(2);
+              },
+            )
+          ],
+        );
+      case 1:
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Text("This is the search page"),
+            RaisedButton(
+              child: Text(
+                "Start new page",
+                style: TextStyle(color: Colors.white),
+              ),
+              color: Theme.of(context).primaryColor,
+              onPressed: () {
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => SecondPage()));
+              },
+            )
+          ],
+        );
+      default:
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Text("This is the basket page"),
+            RaisedButton(
+              child: Text(
+                "Start new page",
+                style: TextStyle(color: Colors.white),
+              ),
+              color: Theme.of(context).primaryColor,
+              onPressed: () {},
+            )
+          ],
+        );
+    }
+  }
+
+  // Container avatar = new Container(
+  //   child: new ClipRect(
+  //       borderRadius: BorderRadius.circular(80.0),
+  //       child: new Image.network(
+  //         'https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=1671428887,22416777&fm=26&gp=0.jpg',
+  //         width: 160.0,
+  //         height: 160.0,
+  //         fit: BoxFit.cover,
+  //       )),
+  // );
+  Container avatar = new Container(
+      width: 160,
+      height: 160,
+      child: new ClipRRect(
+        borderRadius: BorderRadius.circular(80.0),
+        child: FadeInImage.assetNetwork(
+          placeholder:
+              'https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=1671428887,22416777&fm=26&gp=0.jpg',
+          image:
+              'https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=1671428887,22416777&fm=26&gp=0.jpg',
+          fit: BoxFit.cover,
+        ),
+      ));
 
   @override
   Widget build(BuildContext context) {
@@ -71,41 +212,74 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
+      body: Container(
+        decoration: BoxDecoration(color: Colors.white),
+        child: Center(
+          child: _getPage(currentPage),
+        ),
+      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: _incrementCounter,
+      //   tooltip: 'Increment',
+      //   child: Icon(Icons.add),
+      // ),
+      bottomNavigationBar: FancyBottomNavigation(
+        tabs: [
+          TabData(
+              iconData: Icons.home,
+              title: "Home",
+              onclick: () {
+                final FancyBottomNavigationState fState =
+                    bottomNavigationKey.currentState;
+                fState.setPage(2);
+              }),
+          TabData(
+              iconData: Icons.search,
+              title: "Search",
+              onclick: () => Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (context) => SecondPage()))),
+          TabData(iconData: Icons.shopping_cart, title: "Basket")
+        ],
+        initialSelection: 1,
+        key: bottomNavigationKey,
+        onTabChangedListener: (position) {
+          setState(() {
+            currentPage = position;
+          });
+        },
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
           children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.deepOrange,
+              ),
+              // child: Text(
+              //   'Drawer Header',
+              //   style: TextStyle(
+              //     color: Colors.white,
+              //     fontSize: 24,
+              //   ),
+              // ),
+              child: avatar,
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
+            ListTile(
+              leading: Icon(Icons.message),
+              title: Text('Messages'),
+            ),
+            ListTile(
+              leading: Icon(Icons.account_circle),
+              title: Text('Profile'),
+            ),
+            ListTile(
+              leading: Icon(Icons.settings),
+              title: Text('Settings'),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
