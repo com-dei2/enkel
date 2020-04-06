@@ -3,6 +3,10 @@ import 'package:fancy_bottom_navigation/fancy_bottom_navigation.dart';
 import 'second_page.dart';
 import 'dart:io';
 import 'package:flutter/services.dart';
+import 'widgets/drawer_page.dart';
+
+import 'screens/home/index.dart';
+import 'screens/mine.dart';
 
 void main() {
   runApp(MyApp());
@@ -13,6 +17,9 @@ void main() {
     SystemChrome.setSystemUIOverlayStyle(systemUiOverlayStyle);
   }
 }
+
+const headImg =
+    'https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1593082047,1701245442&fm=15&gp=0.jpg';
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -30,9 +37,9 @@ class MyApp extends StatelessWidget {
         // or simply save your changes to "hot reload" in a Flutter IDE).
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
-        primarySwatch: Colors.deepOrange,
+        primarySwatch: Colors.red,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: '上早朝了'),
     );
   }
 }
@@ -59,8 +66,6 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
   int currentPage = 0;
-
-  Color swatchTheme = Colors.lightGreen;
 
   GlobalKey bottomNavigationKey = GlobalKey();
 
@@ -109,54 +114,8 @@ class _MyHomePageState extends State<MyHomePage> {
   _getPage(int page) {
     switch (page) {
       case 0:
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Text("This is the home page"),
-            RaisedButton(
-              child: Text(
-                "Start new page",
-                style: TextStyle(color: Colors.white),
-              ),
-              color: Theme.of(context).primaryColor,
-              onPressed: () {
-                Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => SecondPage()));
-              },
-            ),
-            RaisedButton(
-              child: Text(
-                "Change to page 3",
-                style: TextStyle(color: Colors.white),
-              ),
-              color: Theme.of(context).accentColor,
-              onPressed: () {
-                final FancyBottomNavigationState fState =
-                    bottomNavigationKey.currentState;
-                fState.setPage(2);
-              },
-            )
-          ],
-        );
+        return TabHome(bottomNavigationKey);
       case 1:
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Text("This is the search page"),
-            RaisedButton(
-              child: Text(
-                "Start new page",
-                style: TextStyle(color: Colors.white),
-              ),
-              color: Theme.of(context).primaryColor,
-              onPressed: () {
-                Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => SecondPage()));
-              },
-            )
-          ],
-        );
-      default:
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
@@ -171,32 +130,10 @@ class _MyHomePageState extends State<MyHomePage> {
             )
           ],
         );
+      default:
+        return TabMine(bottomNavigationKey);
     }
   }
-
-  // Container avatar = new Container(
-  //   child: new ClipRect(
-  //       borderRadius: BorderRadius.circular(80.0),
-  //       child: new Image.network(
-  //         'https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=1671428887,22416777&fm=26&gp=0.jpg',
-  //         width: 160.0,
-  //         height: 160.0,
-  //         fit: BoxFit.cover,
-  //       )),
-  // );
-  Container avatar = new Container(
-      width: 160,
-      height: 160,
-      child: new ClipRRect(
-        borderRadius: BorderRadius.circular(80.0),
-        child: FadeInImage.assetNetwork(
-          placeholder:
-              'https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=1671428887,22416777&fm=26&gp=0.jpg',
-          image:
-              'https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=1671428887,22416777&fm=26&gp=0.jpg',
-          fit: BoxFit.cover,
-        ),
-      ));
 
   @override
   Widget build(BuildContext context) {
@@ -227,7 +164,7 @@ class _MyHomePageState extends State<MyHomePage> {
         tabs: [
           TabData(
               iconData: Icons.home,
-              title: "Home",
+              title: "首页",
               onclick: () {
                 final FancyBottomNavigationState fState =
                     bottomNavigationKey.currentState;
@@ -238,48 +175,19 @@ class _MyHomePageState extends State<MyHomePage> {
               title: "Search",
               onclick: () => Navigator.of(context)
                   .push(MaterialPageRoute(builder: (context) => SecondPage()))),
-          TabData(iconData: Icons.shopping_cart, title: "Basket")
+          TabData(iconData: Icons.person, title: "我的")
         ],
         initialSelection: 1,
         key: bottomNavigationKey,
+        textColor: Theme.of(context).primaryColor,
+        inactiveIconColor: Colors.black.withOpacity(.3),
         onTabChangedListener: (position) {
           setState(() {
             currentPage = position;
           });
         },
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.deepOrange,
-              ),
-              // child: Text(
-              //   'Drawer Header',
-              //   style: TextStyle(
-              //     color: Colors.white,
-              //     fontSize: 24,
-              //   ),
-              // ),
-              child: avatar,
-            ),
-            ListTile(
-              leading: Icon(Icons.message),
-              title: Text('Messages'),
-            ),
-            ListTile(
-              leading: Icon(Icons.account_circle),
-              title: Text('Profile'),
-            ),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Settings'),
-            ),
-          ],
-        ),
-      ),
+      drawer: DrawerWidget(),
     );
   }
 }
